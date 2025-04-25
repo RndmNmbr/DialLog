@@ -1,6 +1,8 @@
 # DialLog - "Logging precision, not keypresses!"
-Direct logging for precision measuring instruments that identify as USB HID devices
+
 [![Build Windows Application](https://github.com/RndmNmbr/DialLog/actions/workflows/build.yaml/badge.svg)](https://github.com/RndmNmbr/DialLog/actions/workflows/build.yaml)
+
+Direct logging for precision measuring instruments that identify as USB HID devices
 
 DialLog is a lightweight Windows utility for capturing and logging USB HID output from digital dial indicators and similar precision measurement tools. When the user replaces the default HID driver with WinUSB via Zadig, DialLog allows the scan code data to be read directly.  This means that the instrument's output does not act as keyboard data to Windows.  The output is logged to the console and a file for easy analysis.
 
