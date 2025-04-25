@@ -1,0 +1,40 @@
+# .github/workflows/build.yml
+name: Build Windows Application
+
+on:
+  push: # Trigger on pushes to any branch
+    branches: [ main, master, develop ] # Adjust branches as needed
+  pull_request: # Trigger on pull requests targeting these branches
+    branches: [ main, master ] # Adjust branches as needed
+
+jobs:
+  build:
+    name: Build on Windows
+    runs-on: windows-latest # Use the latest available Windows runner
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4 # Checks out your code
+
+    - name: Configure CMake
+      # Configures the project using CMake.
+      # -S . specifies the source directory (current directory)
+      # -B build specifies the build directory (create a 'build' subdirectory)
+      # -A x64 forces a 64-bit build (common for modern Windows)
+      # The generator defaults to Visual Studio on windows-latest, which is fine.
+      run: cmake -S . -B build -A x64
+
+    - name: Build with CMake
+      # Builds the project based on the configuration done in the previous step.
+      # --build build specifies the build directory to use.
+      # --config Release specifies the build type (e.g., Release, Debug).
+      # Release is generally preferred for CI artifacts.
+      run: cmake --build build --config Release
+
+    # Optional: Upload the built executable as an artifact
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: MyWindowsApp-${{ github.sha }} # Name artifact with commit SHA
+        path: build/bin/Release/MyWindowsApp.exe # Path to the built executable
+        if-no-files-found: error # Fail the step if the exe isn't found
