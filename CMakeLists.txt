@@ -45,9 +45,6 @@ target_link_libraries(MyWindowsApp PRIVATE usb-1.0)
 # Add libusb's include directory to your application's include path
 target_include_directories(MyWindowsApp PRIVATE ${libusb_SOURCE_DIR}/libusb/libusb)
 
-# Optional: Set output directory for the executable
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
 # --- Build Configuration Specifics (Optional but Recommended) ---
 if(MSVC)
   # Improve Windows build settings if needed
