@@ -18,7 +18,7 @@ FetchContent_Declare(
   CMAKE_ARGS     -DINSTALL_UDEV_RULES=OFF # Not needed on Windows
                  -DENABLE_EXAMPLES=OFF    # Don't build examples
                  -DENABLE_TESTS=OFF       # Don't build tests
-                 -DBUILD_SHARED_LIBS=OFF  # <<< Force static linking for libusb
+                 -DBUILD_SHARED_LIBS=OFF  # Force static linking for libusb
 )
 FetchContent_MakeAvailable(libusb)
 
@@ -26,6 +26,8 @@ FetchContent_Declare(
   cmdparser
   GIT_REPOSITORY https://github.com/FlorianRappl/CmdParser.git
   GIT_TAG        v1.1.0
+  PATCH_COMMAND git apply --ignore-space-change --ignore-whitespace ${CMAKE_CURRENT_SOURCE_DIR}/patches/cmdparser/CMakeLists.txt.patch
+
 )
 FetchContent_MakeAvailable(cmdparser)
  
