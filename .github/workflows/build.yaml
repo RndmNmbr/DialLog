@@ -35,6 +35,6 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: MyWindowsApp-${{ github.sha }} # Name artifact with commit SHA
-        path: build/Release/MyWindowsApp.exe # Path to the built executable
+        name: DialLog-${{ github.sha }} # Name artifact with commit SHA
+        path: build/Release/DialLog.exe # Path to the built executable
         if-no-files-found: error # Fail the step if the exe isn't found
