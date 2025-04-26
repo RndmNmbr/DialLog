@@ -47,7 +47,8 @@ target_link_libraries(DialLog PRIVATE usb-1.0)
 
 # --- Include Directories ---
 # Add libusb's include directory to your application's include path
-target_include_directories(DialLog PRIVATE ${libusb_SOURCE_DIR}/libusb/libusb ${cmdparser_SOURCE_DIR}/)
+target_include_directories(DialLog PRIVATE ${libusb_SOURCE_DIR}/libusb/libusb)
+target_include_directories(DialLog PRIVATE ${cmdparser_SOURCE_DIR}/)
 
 # --- Build Configuration Specifics (Optional but Recommended) ---
 if(MSVC)
