@@ -16,4 +16,3 @@ index a3eb0e6..dc4ed45 100644
  enable_testing()
 
  set(CMAKE_CXX_STANDARD 11)
- 
