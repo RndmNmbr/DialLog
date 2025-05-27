@@ -26,7 +26,7 @@ FetchContent_Declare(
   cmdparser
   GIT_REPOSITORY https://github.com/FlorianRappl/CmdParser.git
   GIT_TAG        v1.1.0
-  PATCH_COMMAND git apply --ignore-space-change --ignore-whitespace ${CMAKE_CURRENT_SOURCE_DIR}/patches/cmdparser/CMakeLists.txt.patch
+  PATCH_COMMAND git apply --ignore-space-change --ignore-whitespace "${CMAKE_CURRENT_SOURCE_DIR}/patches/cmdparser/CMakeLists.txt.patch"
 
 )
 FetchContent_MakeAvailable(cmdparser)
@@ -45,12 +45,11 @@ add_dependencies(DialLog usb-1.0)
 # --- Link Your Application to libusb ---
 # This tells the linker *what* to link with DialLog.
 # The dependency created by add_dependencies ensures usb-1.0 exists when linking occurs.
-target_link_libraries(DialLog PRIVATE usb-1.0)
+target_link_libraries(DialLog PRIVATE usb-1.0 cmdparser)
 
 # --- Include Directories ---
 # Add libusb's include directory to your application's include path
-target_include_directories(DialLog PRIVATE ${libusb_SOURCE_DIR}/libusb/libusb)
-target_include_directories(DialLog PRIVATE ${cmdparser_SOURCE_DIR}/)
+target_include_directories(DialLog PRIVATE "${libusb_SOURCE_DIR}/libusb/libusb")
 
 # --- Build Configuration Specifics (Optional but Recommended) ---
 if(MSVC)
