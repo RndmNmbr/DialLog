@@ -1,11 +1,9 @@
-diff --git a/CMakeLists.txt b/CMakeLists.txt
-index a3eb0e6..dc4ed45 100644
---- a/CMakeLists.txt 
-+++ b/CMakeLists.txt
+--- a/CMakeLists.txt	2025-05-27 23:25:42.501012874 +0000
++++ b/CMakeLists.txt	2025-05-27 23:25:42.501012874 +0000
 @@ -1,6 +1,13 @@
  cmake_minimum_required(VERSION 3.9)
  project(cmdparser)
-
+ 
 +# Create a header only library and explicitly specify the include directory
 +# for consumers of the library
 +add_library(${PROJECT_NAME} INTERFACE)
@@ -14,5 +12,5 @@ index a3eb0e6..dc4ed45 100644
 +)
 +
  enable_testing()
-
+ 
  set(CMAKE_CXX_STANDARD 11)
