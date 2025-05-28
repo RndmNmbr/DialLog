@@ -3,6 +3,11 @@
 // This is pretty quick and dirty.
 #include <iomanip>
 #include <iostream>
+#include <fstream> // Added for file operations
+#include <chrono>  // Added for timestamps
+#include <ctime>   // Added for timestamps
+#include <cstring> // Added for memset
+#include <unistd.h> // Added for usleep
 
 #include "cmdparser.hpp"
 #include "libusb.h"
@@ -40,7 +45,7 @@ int main(int argc, char** argv) {
                                    "DialLog_Output.csv",
                                    "File name to write.  Use \"stdout\" to dump to console.");
   parser.set_optional<bool>(
-      "t", "time-stamp", true, "Include a time stamp with each value in the output.");
+      "t", "time-stamp", false, "Include a time stamp with each value in the output.");
   parser.run_and_exit_if_error();
 
   ///////////////////
@@ -227,9 +232,36 @@ int main(int argc, char** argv) {
                 // Convert string to float
                 const double measurementValue = atof(measurementBuffer);
 
-                printf("    Converted Float Value: %f\n", measurementValue);
+                // Get output filename and timestamp flag
+                const std::string outputFilename = parser.get<std::string>("o");
+                const bool includeTimestamp = parser.get<bool>("t");
 
-                // --- Use measurement_value here ---
+                if (outputFilename != "stdout") {
+                  // Output to file
+                  std::ofstream outFile(outputFilename, std::ios_base::app);
+                  if (outFile.is_open()) {
+                    if (includeTimestamp) {
+                      auto now = std::chrono::system_clock::now();
+                      auto now_c = std::chrono::system_clock::to_time_t(now);
+                      outFile << std::put_time(std::localtime(&now_c), "%Y-%m-%d %H:%M:%S") << ",";
+                    }
+                    outFile << measurementValue << std::endl;
+                    outFile.close();
+                  } else {
+                    std::cerr << "  ! Error: Could not open output file: " << outputFilename << std::endl;
+                  }
+                } else {
+                  // Output to stdout
+                  if (includeTimestamp) {
+                    auto now = std::chrono::system_clock::now();
+                    auto now_c = std::chrono::system_clock::to_time_t(now);
+                    // Using printf for stdout timestamp for consistency with existing printf
+                    char time_buf[80];
+                    std::strftime(time_buf, sizeof(time_buf), "%Y-%m-%d %H:%M:%S, ", std::localtime(&now_c));
+                    printf("%s", time_buf);
+                  }
+                  printf("%f\n", measurementValue);
+                }
 
               } else {
                 std::cerr << "  ! Warning: ENTER key scan code received with an empty buffer."
@@ -255,7 +287,7 @@ int main(int argc, char** argv) {
       } // End if (actual_length == REPORT_SIZE)
     } else if (transferResult == LIBUSB_ERROR_TIMEOUT) {
       // No data - idle polling is fine
-      Sleep(10); // Small sleep to yield CPU
+      usleep(10000); // Small sleep to yield CPU (10ms)
     } else {
       // Other error
       fprintf(stderr, "\nlibusb_interrupt_transfer error: %s\n", libusb_error_name(transferResult));

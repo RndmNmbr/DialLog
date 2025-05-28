@@ -1,0 +1,19 @@
+cmake_minimum_required(VERSION 3.9)
+project(cmdparser)
+
+# Create a header only library and explicitly specify the include directory
+# for consumers of the library
+add_library( INTERFACE)
+target_include_directories( INTERFACE
+  ""
+)
+
+enable_testing()
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+add_subdirectory(cmdparser.Test EXCLUDE_FROM_ALL)
+add_custom_target(check COMMAND  --verbose)
+add_test(cmdparserTest cmdparser.Test/cmdparserTest)
+add_dependencies(check cmdparserTest)
