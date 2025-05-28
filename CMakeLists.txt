@@ -1,7 +1,9 @@
 # CMakeLists.txt
 cmake_minimum_required(VERSION 3.15) # FetchContent needs a reasonably modern CMake
 
-project(DialLog LANGUAGES CXX) 
+project(DialLog LANGUAGES CXX)
+
+enable_testing() # Enable CTest
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -30,10 +32,25 @@ FetchContent_Declare(
 
 )
 FetchContent_MakeAvailable(cmdparser)
- 
+
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG    release-1.12.1 # Using specified stable release
+  GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(googletest)
+
 
 # --- Define Your Application Executable ---
-add_executable(DialLog src/main.cpp) 
+add_executable(DialLog src/main.cpp)
+
+# --- Define Test Executable ---
+add_executable(DialLog_tests
+    tests/main_test.cpp
+    src/usb_stubs.cpp
+    src/main.cpp # To get application_main. GTest main should take precedence.
+)
 
 # --- Explicitly state build order dependency ---
 # Although target_link_libraries implies a dependency, add_dependencies
@@ -50,6 +67,19 @@ target_link_libraries(DialLog PRIVATE usb-1.0 cmdparser)
 # --- Include Directories ---
 # Add libusb's include directory to your application's include path
 target_include_directories(DialLog PRIVATE "${libusb_SOURCE_DIR}/libusb/libusb")
+
+# --- Configure Test Executable ---
+target_compile_definitions(DialLog_tests PRIVATE TESTING_WITH_STUBS)
+
+target_link_libraries(DialLog_tests PRIVATE gtest_main cmdparser)
+
+target_include_directories(DialLog_tests PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src" # For usb_stubs.h and main.cpp (for application_main)
+    "${googletest_SOURCE_DIR}/googletest/include" # For gtest headers
+)
+
+# --- Add to CTest ---
+add_test(NAME DialLogUnitTests COMMAND DialLog_tests)
 
 # --- Build Configuration Specifics (Optional but Recommended) ---
 if(MSVC)

@@ -5,13 +5,27 @@
 #include <iostream>
 
 #include "cmdparser.hpp"
+
+#ifdef TESTING_WITH_STUBS
+#include "usb_stubs.h" // Assuming usb_stubs.h is in the same src directory or include paths are set up
+#include <thread>   // For std::this_thread::sleep_for
+#include <chrono>   // For std::chrono::milliseconds
+#else
 #include "libusb.h"
+// If Sleep() needs <windows.h> and it's not included elsewhere for libusb,
+// it might be needed here. However, libusb.h often includes it on Windows.
+// For now, assume libusb.h handles it or it's already included.
+// If not, add: #include <windows.h>
+#endif
 
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 1
 #define VERSION_REVISION 0
 
-int main(int argc, char** argv) {
+// Forward declaration for application_main if preferred, or define it before main.
+// For this refactoring, we will define it before main.
+
+int application_main(int argc, char** argv) {
 
   std::cerr << std::endl;
   std::cerr << "DialLog - \"Logging precision, not keypresses!\"" << std::endl;
@@ -255,7 +269,11 @@ int main(int argc, char** argv) {
       } // End if (actual_length == REPORT_SIZE)
     } else if (transferResult == LIBUSB_ERROR_TIMEOUT) {
       // No data - idle polling is fine
+#ifdef TESTING_WITH_STUBS
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+#else
       Sleep(10); // Small sleep to yield CPU
+#endif
     } else {
       // Other error
       fprintf(stderr, "\nlibusb_interrupt_transfer error: %s\n", libusb_error_name(transferResult));
@@ -265,4 +283,8 @@ int main(int argc, char** argv) {
 
   libusb_exit(pUsbContext); // Deinitialize libusb
   return 0;
-} // End main()
+} // End application_main()
+
+int main(int argc, char** argv) {
+    return application_main(argc, argv);
+}
