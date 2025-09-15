@@ -26,11 +26,40 @@ FetchContent_Declare(
   cmdparser
   GIT_REPOSITORY https://github.com/FlorianRappl/CmdParser.git
   GIT_TAG        v1.1.0
-  PATCH_COMMAND git apply --check "${CMAKE_CURRENT_SOURCE_DIR}/patches/cmdparser/CMakeLists.txt.patch" && git apply --ignore-space-change --ignore-whitespace "${CMAKE_CURRENT_SOURCE_DIR}/patches/cmdparser/CMakeLists.txt.patch" || echo "Patch already applied or not applicable"
 
 )
-FetchContent_MakeAvailable(cmdparser)
- 
+# Apply patch exactly once using a guarded populate step
+# Avoid using PATCH_COMMAND so CMake won't try to re-apply it on subsequent re-configures.
+set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+
+FetchContent_GetProperties(cmdparser)
+if(NOT cmdparser_POPULATED)
+  FetchContent_Populate(cmdparser)
+
+  # Patch path pinned here; adjust if your patch file moves
+  set(CMDPARSER_PATCH "${CMAKE_CURRENT_SOURCE_DIR}/patches/cmdparser/CMakeLists.txt.patch")
+
+  execute_process(
+    COMMAND git apply --check "${CMDPARSER_PATCH}"
+    WORKING_DIRECTORY "${cmdparser_SOURCE_DIR}"
+    RESULT_VARIABLE PATCH_CHECK
+  )
+
+  if(PATCH_CHECK EQUAL 0)
+    execute_process(
+      COMMAND git apply --ignore-space-change --ignore-whitespace "${CMDPARSER_PATCH}"
+      WORKING_DIRECTORY "${cmdparser_SOURCE_DIR}"
+      RESULT_VARIABLE PATCH_APPLY
+    )
+    if(NOT PATCH_APPLY EQUAL 0)
+      message(FATAL_ERROR "Failed to apply cmdparser patch")
+    endif()
+  else()
+    message(STATUS "cmdparser patch already applied or not applicable; skipping")
+  endif()
+
+  add_subdirectory("${cmdparser_SOURCE_DIR}" "${cmdparser_BINARY_DIR}")
+endif()
 
 # --- Define Your Application Executable ---
 add_executable(DialLog src/main.cpp) 
